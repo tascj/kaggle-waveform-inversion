@@ -44,8 +44,16 @@ torchrun --nproc_per_node=4 main.py configs/release04.py
 
 ## Inference
 
+To reproduce the submission:
 ```
 python predict.py configs/release02.py --load-from ../artifacts/release02/epoch_10.pth --input-root ../data/test --output-root ../submissions/release02/
 python predict.py configs/release03.py --load-from ../artifacts/release03/epoch_1.pth --input-root ../data/test --output-root ../submissions/release03/
 python predict.py configs/release04.py --load-from ../artifacts/release04/epoch_1.pth --input-root ../data/test --output-root ../submissions/release04/
+```
+
+Bug fix to use the model correctly:
+```
+python predict.py configs/release02.py --load-from ../artifacts/release02/epoch_10.pth --input-root ../data/test --output-root ../submissions/release02fix/ --erase-last-row
+python predict.py configs/release03.py --load-from ../artifacts/release03/epoch_1.pth --input-root ../data/test --output-root ../submissions/release03fix/ --erase-last-row
+python predict.py configs/release04.py --load-from ../artifacts/release04/epoch_1.pth --input-root ../data/test --output-root ../submissions/release04fix/ --erase-last-row
 ```

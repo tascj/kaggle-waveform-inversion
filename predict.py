@@ -24,9 +24,10 @@ from tqdm import tqdm
 
 
 class TestDataset(torch.utils.data.Dataset):
-    def __init__(self, data_root):
+    def __init__(self, data_root, erase_last_row=False):
         self.data_root = data_root
         self.seis_files = sorted(glob.glob(os.path.join(data_root, "*.npy")))
+        self.erase_last_row = erase_last_row
 
     def __len__(self):
         return len(self.seis_files)
@@ -35,6 +36,8 @@ class TestDataset(torch.utils.data.Dataset):
         seis_file = self.seis_files[idx]
         seis = np.load(seis_file)
         seis = torch.from_numpy(seis)
+        if self.erase_last_row:
+            seis[:, -1, :] = 0
         oid = Path(seis_file).stem
         return {"seis": seis, "oid": oid}
 
@@ -45,12 +48,13 @@ def parse_args():
     parser.add_argument("--load-from", required=True, type=str)
     parser.add_argument("--input-root", required=True, type=str)
     parser.add_argument("--output-root", required=True, type=str)
+    parser.add_argument("--erase-last-row", action="store_true")
     return parser.parse_args()
 
 
 @torch.no_grad()
-def do_test(input_root, output_root, model):
-    test_ds = TestDataset(input_root)
+def do_test(input_root, output_root, model, erase_last_row):
+    test_ds = TestDataset(input_root, erase_last_row=erase_last_row)
     test_loader = torch.utils.data.DataLoader(test_ds, batch_size=32, shuffle=False)
 
     model.eval()
@@ -84,7 +88,7 @@ def main():
 
     output_root = Path(args.output_root)
     output_root.mkdir(parents=True, exist_ok=True)
-    do_test(args.input_root, output_root, model)
+    do_test(args.input_root, output_root, model, args.erase_last_row)
 
 
 if __name__ == "__main__":
